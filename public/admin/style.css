@@ -1,0 +1,128 @@
+
+body {
+    margin: 0;
+    background: #f4f6f9;
+    font-family: "Inter", Arial, sans-serif;
+    color: #333;
+    padding: 0;
+  }
+  
+  /* ---------- TOP NAV ---------- */
+  .top-menu {
+    background: #111827;
+    padding: 15px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .top-menu a {
+    color: #e5e7eb;
+    text-decoration: none;
+    font-size: 17px;
+    transition: 0.2s;
+  }
+  
+  .top-menu a:hover {
+    color: #3b82f6;
+  }
+  
+  /* ---------- CONTAINER ---------- */
+  .container {
+    max-width: 1100px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  }
+  
+  /* ---------- TITLES ---------- */
+  h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #111827;
+  }
+  h2 {
+    margin-top: 40px;
+    font-size: 24px;
+    color: #1f2937;
+  }
+  
+  /* ---------- FORM ---------- */
+  form {
+    margin-top: 20px;
+    display: grid;
+    gap: 15px;
+    max-width: 600px;
+  }
+  
+  input {
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+  }
+  
+  /* ---------- BUTTONS ---------- */
+  button {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  button:hover {
+    background: #2563eb;
+  }
+  
+  /* ---------- TABLE ---------- */
+  table {
+    margin-top: 25px;
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+  }
+  
+  thead {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  th, td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  tr:hover {
+    background: #f9fafb;
+  }
+  
+  /* ---------- ACTION BUTTONS ---------- */
+  .btn-delete {
+    background: #ef4444;
+  }
+  .btn-delete:hover {
+    background: #dc2626;
+  }
+  
+  .btn-edit {
+    background: #10b981;
+  }
+  .btn-edit:hover {
+    background: #059669;
+  }
+  

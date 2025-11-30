@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Productos – Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- MENÚ SUPERIOR -->
+<div class="top-menu">
+  <a href="dashboard.html"> Dashboard</a>
+  <a href="categorias.html"> Categorías</a>
+  <a href="productos.html"> Productos</a>
+  <a href="clientes.html"> Clientes</a>
+</div>
+
+<div class="container">
+
+  <h1>Productos</h1>
+  <p>Administra todos los productos del catálogo.</p>
+
+  <!-- FORM -->
+  <h2>Agregar nuevo producto</h2>
+  <form id="formProducto">
+    <input type="text" id="name" placeholder="Nombre" required>
+    <input type="text" id="description" placeholder="Descripción">
+    <input type="number" id="price" placeholder="Precio" required>
+    <input type="number" id="stock" placeholder="Stock" required>
+    <input type="number" id="categoryId" placeholder="ID Categoría" required>
+    <button type="submit">Agregar producto</button>
+  </form>
+
+  <!-- TABLE -->
+  <h2>Listado de productos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Categoría</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="listaProductos"></tbody>
+  </table>
+
+</div>
+
+<script>
+  const token = localStorage.getItem("token");
+
+  // AGREGAR PRODUCTO
+  document.getElementById("formProducto").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+      name: document.getElementById("name").value,
+      description: document.getElementById("description").value,
+      price: parseFloat(document.getElementById("price").value),
+      stock: parseInt(document.getElementById("stock").value),
+      categoryId: parseInt(document.getElementById("categoryId").value)
+    };
+
+    await fetch("/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(data)
+    });
+
+    alert("Producto agregado");
+    cargarProductos();
+  });
+
+  // CARGAR PRODUCTOS
+  async function cargarProductos() {
+    const res = await fetch("/api/products");
+    const productos = await res.json();
+
+    const tbody = document.getElementById("listaProductos");
+    tbody.innerHTML = "";
+
+    productos.forEach(p => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${p.id}</td>
+          <td>${p.name}</td>
+          <td>${p.description || "-"}</td>
+          <td>$${p.price}</td>
+          <td>${p.stock}</td>
+          <td>${p.categoryId}</td>
+          <td>
+            <button class="btn-delete" onclick="eliminar(${p.id})">Eliminar</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  // ELIMINAR
+  async function eliminar(id) {
+    if (!confirm("¿Eliminar producto?")) return;
+
+    await fetch("/api/products/" + id, {
+      method: "DELETE",
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    alert("Producto eliminado");
+    cargarProductos();
+  }
+
+  cargarProductos();
+</script>
+
+</body>
+</html>

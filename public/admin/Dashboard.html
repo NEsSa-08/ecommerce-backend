@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | Admin</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Arial", sans-serif;
+      background: #f5f6fa;
+      display: flex;
+    }
+
+    /* ------------------- SIDEBAR ------------------- */
+    .sidebar {
+      width: 250px;
+      background: #1e1e1e;
+      height: 100vh;
+      padding-top: 30px;
+      position: fixed;
+    }
+
+    .sidebar h2 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 24px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 15px 25px;
+      color: #ccc;
+      text-decoration: none;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    .sidebar a:hover {
+      background: #007bff;
+      color: #fff;
+    }
+
+    .logout {
+      color: #ff4444 !important;
+      font-weight: bold;
+      margin-top: 50px;
+    }
+
+    /* ------------------- MAIN CONTENT ------------------- */
+    .main {
+      margin-left: 250px;
+      padding: 30px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .date {
+      color: #888;
+      margin-bottom: 30px;
+    }
+
+    /* ------------------- CARDS ------------------- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #555;
+    }
+
+    .card p {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    /* ------------------- CHART ------------------- */
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+    }
+
+    /* ------------------- TABLE ------------------- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #007bff;
+      color: white;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ------------------- SIDEBAR ------------------- -->
+  <div class="sidebar">
+    <h2>Admin Panel</h2>
+    <a href="/admin/dashboard.html">📊 Dashboard</a>
+    <a href="/admin/categorias.html">📂 Categorías</a>
+    <a href="/admin/productos.html">🛒 Productos</a>
+    <a href="/admin/clientes.html">👤 Clientes</a>
+    <a href="#" class="logout" onclick="logout()">Cerrar sesión</a>
+  </div>
+
+  <!-- ------------------- MAIN CONTENT ------------------- -->
+  <div class="main">
+    <h1>Dashboard</h1>
+    <p class="date">Bienvenida Vanessa — Hoy es <span id="fecha"></span></p>
+
+    <!-- CARDS -->
+    <div class="cards">
+      <div class="card">
+        <h3>Total Categorías</h3>
+        <p id="cardCategorias">0</p>
+      </div>
+
+      <div class="card">
+        <h3>Total Productos</h3>
+        <p id="cardProductos">0</p>
+      </div>
+
+      <div class="card">
+        <h3>Total Clientes</h3>
+        <p id="cardClientes">0</p>
+      </div>
+
+      <div class="card">
+        <h3>Stock Total</h3>
+        <p id="cardStock">0</p>
+      </div>
+    </div>
+
+    <!-- GRAFICA -->
+    <div class="chart-container">
+      <h2>Stock por Producto</h2>
+      <canvas id="miGrafica" width="900" height="350"></canvas>
+    </div>
+
+    <!-- TABLA -->
+    <h2>Últimos productos agregados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Categoría</th>
+        </tr>
+      </thead>
+      <tbody id="tablaProductos"></tbody>
+    </table>
+
+  </div>
+
+
+  <script>
+    const token = localStorage.getItem("token");
+
+    // Fecha actual
+    document.getElementById("fecha").innerText =
+      new Date().toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+    // Cerrar sesión
+    function logout() {
+      localStorage.removeItem("token");
+      alert("Sesión cerrada");
+      window.location.href = "/admin/index.html";
+    }
+
+    // Cargar datos del dashboard
+    async function cargarDashboard() {
+      const resCat = await fetch("/api/categories");
+      const categorias = await resCat.json();
+
+      const resProd = await fetch("/api/products");
+      const productos = await resProd.json();
+
+      const resCli = await fetch("/api/clients");
+      const clientes = await resCli.json();
+
+      // Llenar tarjetas
+      document.getElementById("cardCategorias").innerText = categorias.length;
+      document.getElementById("cardProductos").innerText = productos.length;
+      document.getElementById("cardClientes").innerText = clientes.length;
+
+      // Stock total
+      let totalStock = productos.reduce((sum, p) => sum + p.stock, 0);
+      document.getElementById("cardStock").innerText = totalStock;
+
+      // Llenar tabla últimos productos
+      const tabla = document.getElementById("tablaProductos");
+      tabla.innerHTML = "";
+
+      productos.slice(-5).forEach(p => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${p.name}</td>
+            <td>$${p.price}</td>
+            <td>${p.stock}</td>
+            <td>${p.categoryId}</td>
+          </tr>`;
+      });
+
+      // Generar grafica stock
+      dibujarGrafica(productos);
+    }
+
+    // Dibujar gráfica simple tipo barras (SIN librerías)
+    function dibujarGrafica(productos) {
+      const canvas = document.getElementById("miGrafica");
+      const ctx = canvas.getContext("2d");
+
+      const barWidth = 50;
+      const gap = 25;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#007bff";
+      ctx.font = "14px Arial";
+
+      productos.slice(0, 10).forEach((p, i) => {
+        const x = 50 + i * (barWidth + gap);
+        const height = p.stock * 5;
+
+        // barra
+        ctx.fillRect(x, 300 - height, barWidth, height);
+
+        // nombre
+        ctx.fillText(p.name.slice(0, 8), x, 320);
+      });
+    }
+
+    cargarDashboard();
+  </script>
+
+</body>
+</html>

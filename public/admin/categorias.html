@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Categorías – Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="top-menu">
+  <a href="dashboard.html"> Dashboard</a>
+  <a href="categorias.html"> Categorías</a>
+  <a href="productos.html"> Productos</a>
+  <a href="clientes.html">Clientes</a>
+</div>
+
+<div class="container">
+
+  <h1>Categorías</h1>
+  <p>Administra todas las categorías del sistema.</p>
+
+  <h2>Agregar nueva categoría</h2>
+  <form id="formCategoria">
+    <input type="text" id="name" placeholder="Nombre" required>
+    <input type="text" id="description" placeholder="Descripción" required>
+    <button type="submit">Agregar categoría</button>
+  </form>
+
+  <h2>Listado de categorías</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="listaCategorias"></tbody>
+  </table>
+
+</div>
+
+<script>
+  const token = localStorage.getItem("token");
+
+  document.getElementById("formCategoria").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+      name: document.getElementById("name").value,
+      description: document.getElementById("description").value
+    };
+
+    await fetch("/api/categories", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(data)
+    });
+
+    alert("Categoría agregada");
+    cargarCategorias();
+  });
+
+  async function cargarCategorias() {
+    const res = await fetch("/api/categories");
+    const categorias = await res.json();
+
+    const tbody = document.getElementById("listaCategorias");
+    tbody.innerHTML = "";
+
+    categorias.forEach(cat => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${cat.id}</td>
+          <td>${cat.name}</td>
+          <td>${cat.description}</td>
+          <td>
+            <button class="btn-delete" onclick="eliminar(${cat.id})">Eliminar</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  async function eliminar(id) {
+    if (!confirm("¿Eliminar categoría?")) return;
+
+    await fetch("/api/categories/" + id, {
+      method: "DELETE",
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    alert("Categoría eliminada");
+    cargarCategorias();
+  }
+
+  cargarCategorias();
+</script>
+
+</body>
+</html>
