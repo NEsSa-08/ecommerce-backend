@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mis pedidos</title>
+  <link rel="stylesheet" href="tienda.css">
+  <script src="tienda.js"></script>
+</head>
+
+<body>
+
+<header>
+  <h2>CicloElite Store</h2>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="carrito.html">Carrito 🛒</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h1>Mis pedidos</h1>
+
+  <div id="lista"></div>
+</div>
+
+<script>
+async function cargarPedidos() {
+  const res = await authFetch("/api/orders");
+  const orders = await res.json();
+
+  let html = "<ul>";
+
+  orders.forEach(o => {
+    html += `<li>Orden #${o.id} — Total: $${o.total}</li>`;
+  });
+
+  html += "</ul>";
+
+  document.getElementById("lista").innerHTML = html;
+}
+
+cargarPedidos();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Carrito</title>
+  <link rel="stylesheet" href="tienda.css">
+  <script src="tienda.js"></script>
+</head>
+
+<body>
+
+<header>
+  <h2>TecMarket</h2>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="carrito.html">Carrito 🛒</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h1>Carrito</h1>
+
+  <div id="carrito"></div>
+  <h2 id="total"></h2>
+
+  <button class="btn-green" id="btnCheckout" style="display:none">Finalizar Compra</button>
+</div>
+
+<script>
+    async function cargarCarrito() {
+      const res = await clientFetch("/api/cart");
+      const data = await res.json();
+    
+      if (!data || !data.CartItems || data.CartItems.length === 0) {
+        document.getElementById("carrito").innerHTML =
+          "<p>Tu carrito está vacío 💛</p>";
+        document.getElementById("total").innerText = "";
+        return;
+      }
+    
+      let html = "<table><tr><th>Producto</th><th>Cantidad</th><th>Precio</th></tr>";
+      let total = 0;
+    
+      data.CartItems.forEach(item => {
+        const p = item.Product;
+        html += `
+          <tr>
+            <td>${p.name}</td>
+            <td>${item.quantity}</td>
+            <td>$${p.price * item.quantity}</td>
+          </tr>
+        `;
+        total += p.price * item.quantity;
+      });
+    
+      html += "</table>";
+    
+      document.getElementById("carrito").innerHTML = html;
+      document.getElementById("total").innerHTML = "Total: $" + total;
+    
+      document.getElementById("btnCheckout").style.display = "block";
+    }
+    
+    document.getElementById("btnCheckout").onclick = async function () {
+      const res = await clientFetch("/api/cart/checkout", { method: "POST" });
+      const data = await res.json();
+    
+      alert(`Compra realizada 🥳 Total: $${data.total}`);
+      cargarCarrito();
+    };
+    
+    cargarCarrito();
+    </script>
+    
+
+</body>
+</html>

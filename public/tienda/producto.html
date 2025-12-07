@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Producto</title>
+  <link rel="stylesheet" href="tienda.css">
+  <script src="tienda.js"></script>
+</head>
+
+<body>
+
+<header>
+  <h2>TecMarket</h2>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="productos.html">Productos</a>
+    <a href="carrito.html">Carrito 🛒</a>
+  </nav>
+</header>
+
+<div class="container" id="info"></div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const id = params.get("id");
+
+async function cargarProducto() {
+  const res = await fetch("/api/products/" + id);
+  const p = await res.json();
+
+  document.getElementById("info").innerHTML = `
+    <h1>${p.name}</h1>
+    
+    <p>${p.description}</p>
+    <h2>$${p.price}</h2>
+
+    <button onclick="agregarCarrito(${p.id})">Agregar al carrito</button>
+  `;
+}
+
+cargarProducto();
+</script>
+
+</body>
+</html>

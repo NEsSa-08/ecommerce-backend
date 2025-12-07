@@ -8,9 +8,12 @@ exports.create = async (req, res) => {
 };
 
 exports.list = async (_, res) => {
-  const data = await Product.findAll({ include: [{ model: Category }] });
+  const data = await Product.findAll({
+    include: [{ model: Category, attributes: ["name"] }]
+  });
   res.json(data);
 };
+
 
 exports.get = async (req, res) => {
   const data = await Product.findByPk(req.params.id, { include: [{ model: Category }] });

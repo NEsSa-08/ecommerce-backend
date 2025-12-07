@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Carrito</title>
+  <link rel="stylesheet" href="/admin/style.css">
+  <style>
+    body { padding: 30px; }
+    .cart-container { max-width: 900px; margin: auto; }
+    .cart-title { font-size: 32px; margin-bottom: 10px; }
+    .cart-empty { padding: 20px; background: #fff3cd; border-radius: 10px; margin-top: 20px; }
+    .btn-checkout { background: #10b981 !important; }
+    .btn-checkout:hover { background: #059669 !important; }
+  </style>
+</head>
+
+<body>
+
+<div class="cart-container">
+  <h1 class="cart-title">🛒 Mi Carrito</h1>
+  <p>Aquí puedes ver tus productos antes de comprar.</p>
+
+  <div id="carrito"></div>
+
+  <div id="totalContainer" style="margin-top:20px; font-size:22px;"></div>
+
+  <button id="btnCheckout" class="btn-checkout" style="margin-top:20px; display:none;">
+    Finalizar Compra
+  </button>
+</div>
+
+<script>
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Primero inicia sesión para usar el carrito.");
+    window.location.href = "/login.html";
+  }
+
+  async function cargarCarrito() {
+    const res = await fetch("/api/cart", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    const items = await res.json();
+    const container = document.getElementById("carrito");
+    const totalContainer = document.getElementById("totalContainer");
+    const btnCheckout = document.getElementById("btnCheckout");
+
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="cart-empty">
+          💛 Tu carrito está vacío.  
+          Añade productos desde la sección de tienda.
+        </div>
+      `;
+      totalContainer.innerHTML = "";
+      btnCheckout.style.display = "none";
+      return;
+    }
+
+    let total = 0;
+
+    let html = `
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    items.forEach(item => {
+      const p = item.Product;
+      const subtotal = p.price * item.quantity;
+      total += subtotal;
+
+      html += `
+        <tr>
+          <td>${p.name}</td>
+          <td>$${p.price}</td>
+          <td>${item.quantity}</td>
+          <td>$${subtotal}</td>
+        </tr>
+      `;
+    });
+
+    html += "</tbody></table>";
+    container.innerHTML = html;
+
+    totalContainer.innerHTML = `<b>Total a pagar: $${total}</b>`;
+    btnCheckout.style.display = "block";
+  }
+
+  // FINALIZAR COMPRA
+  document.getElementById("btnCheckout").addEventListener("click", async () => {
+    if (!confirm("¿Confirmas tu compra?")) return;
+
+    const res = await fetch("/api/cart/checkout", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    const data = await res.json();
+
+    if (data.msg === "Compra realizada con éxito") {
+      alert(`Compra realizada.\nTotal pagado: $${data.total}`);
+      cargarCarrito(); // recarga el carrito vacío
+    } else {
+      alert(data.msg);
+    }
+  });
+
+  cargarCarrito();
+</script>
+
+</body>
+</html>

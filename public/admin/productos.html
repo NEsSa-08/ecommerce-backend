@@ -8,6 +8,7 @@
 
 <body>
 
+
 <!-- MENÚ SUPERIOR -->
 <div class="top-menu">
   <a href="dashboard.html"> Dashboard</a>
@@ -81,7 +82,10 @@
 
   // CARGAR PRODUCTOS
   async function cargarProductos() {
-    const res = await fetch("/api/products");
+    const res = await fetch("/api/products", {
+  headers: { "Authorization": "Bearer " + token }
+});
+
     const productos = await res.json();
 
     const tbody = document.getElementById("listaProductos");
@@ -119,6 +123,28 @@
 
   cargarProductos();
 </script>
+<script>
+  async function agregarCarrito(id) {
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      alert("Primero inicia sesión.");
+      return;
+    }
+  
+    await fetch("/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ productId: id, quantity: 1 })
+    });
+  
+    alert("Producto agregado al carrito 🛒");
+  }
+  </script>
+  
 
 </body>
 </html>

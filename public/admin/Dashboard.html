@@ -203,42 +203,54 @@
     }
 
     // Cargar datos del dashboard
-    async function cargarDashboard() {
-      const resCat = await fetch("/api/categories");
-      const categorias = await resCat.json();
+   
+      async function cargarDashboard() {
+        const resCat = await fetch("/api/categories", {
+  headers: {
+    "Authorization": "Bearer " + token
+  }
+});
 
-      const resProd = await fetch("/api/products");
-      const productos = await resProd.json();
+  const categorias = await resCat.json();
 
-      const resCli = await fetch("/api/clients");
-      const clientes = await resCli.json();
+  const resProd = await fetch("/api/products", {
+    headers: { "Authorization": "Bearer " + token }
+  });
+  const productos = await resProd.json();
 
-      // Llenar tarjetas
-      document.getElementById("cardCategorias").innerText = categorias.length;
-      document.getElementById("cardProductos").innerText = productos.length;
-      document.getElementById("cardClientes").innerText = clientes.length;
+  const resCli = await fetch("/api/clients", {
+    headers: { "Authorization": "Bearer " + token }
+  });
+  const clientes = await resCli.json();
 
-      // Stock total
-      let totalStock = productos.reduce((sum, p) => sum + p.stock, 0);
-      document.getElementById("cardStock").innerText = totalStock;
+  // Llenar tarjetas
+  document.getElementById("cardCategorias").innerText = categorias.length;
+  document.getElementById("cardProductos").innerText = productos.length;
+  document.getElementById("cardClientes").innerText = clientes.length;
 
-      // Llenar tabla últimos productos
-      const tabla = document.getElementById("tablaProductos");
-      tabla.innerHTML = "";
+  // Stock total
+  let totalStock = productos.reduce((sum, p) => sum + p.stock, 0);
+  document.getElementById("cardStock").innerText = totalStock;
 
-      productos.slice(-5).forEach(p => {
-        tabla.innerHTML += `
-          <tr>
-            <td>${p.name}</td>
-            <td>$${p.price}</td>
-            <td>${p.stock}</td>
-            <td>${p.categoryId}</td>
-          </tr>`;
-      });
+  // Llenar tabla últimos productos
+  const tabla = document.getElementById("tablaProductos");
+  tabla.innerHTML = "";
 
-      // Generar grafica stock
-      dibujarGrafica(productos);
-    }
+  productos.slice(-5).forEach(p => {
+    tabla.innerHTML += `
+      <tr>
+        <td>${p.name}</td>
+        <td>$${p.price}</td>
+        <td>${p.stock}</td>
+        <td>${p.categoryId}</td>
+      </tr>`;
+  });
+
+  // Generar grafica stock
+  dibujarGrafica(productos);
+}
+
+    
 
     // Dibujar gráfica simple tipo barras (SIN librerías)
     function dibujarGrafica(productos) {

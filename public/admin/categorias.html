@@ -67,7 +67,10 @@
   });
 
   async function cargarCategorias() {
-    const res = await fetch("/api/categories");
+    const res = await fetch("/api/categories", {
+  headers: { "Authorization": "Bearer " + token }
+});
+
     const categorias = await res.json();
 
     const tbody = document.getElementById("listaCategorias");

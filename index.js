@@ -9,18 +9,25 @@ const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const cartRoutes = require("./routes/cartRoutes");
+
+
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 // panel admin
+app.use(express.static('public'));
+
 app.use('/admin', express.static('public/admin'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/clients', clientRoutes);
+app.use("/api/cart", cartRoutes);
+
 
 (async () => {
   await sequelize.sync({ alter: true });
